@@ -1,55 +1,135 @@
 <template>
-  <div>
+  <div class="site-canvas">
+    <div id="header" class="absolute w-full">
+      <div class="py-3 flex justify-between items-center container">
+        <a-logo class="logo" />
+        <a-navbar />
+      </div>
+    </div>
+    <!-- <span v-if="document.data" class="block">{{ document.data.body }}</span> -->
+
     <nuxt />
+    <a-footer></a-footer>
   </div>
 </template>
 
-<style>
+<script>
+// app
+import aFooter from '~/components/app/Footer.vue'
+import aNavbar from '~/components/app/Navbar.vue'
+import aLogo from '~/components/app/Logo.vue'
+
+function getPage(prismic) {
+  // page, custom type
+  return prismic.api.getByUID('menu', 'menu')
+}
+// import Navbar from "~/components/Navbar.vue";
+export default {
+  components: {
+    aNavbar,
+    aLogo,
+    aFooter
+  },
+  data() {
+    return { document: {} }
+  },
+  async asyncData({ app, error }) {
+    const document = await getPage(app.$prismic)
+    // eslint-disable-next-line no-console
+    console.log(document)
+    if (document) {
+      return { document }
+    } else {
+      error({ statusCode: 404, message: 'Page not found' })
+    }
+  },
+  created() {
+    getPage(this.$prismic).then(document => {
+      this.document = document
+    })
+  }
+}
+</script>
+
+<style lang="css">
 html {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
+  @apply font-normal;
+  @apply text-black;
+  @apply leading-normal;
+  @apply font-copy;
 }
 
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-  margin: 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-heading;
+  @apply text-black;
 }
 
-.button--green {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #3b8070;
-  color: #3b8070;
-  text-decoration: none;
-  padding: 10px 30px;
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply mb-3;
 }
 
-.button--green:hover {
-  color: #fff;
-  background-color: #3b8070;
+h2 {
+  @apply text-3xl;
 }
 
-.button--grey {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #35495e;
-  color: #35495e;
-  text-decoration: none;
-  padding: 10px 30px;
-  margin-left: 15px;
+
+
+p,
+blockquote,
+nav,
+button,
+a {
+  @apply font-normal;
+  @apply text-black;
+  @apply text-base;
+  @apply mb-3;
 }
 
-.button--grey:hover {
-  color: #fff;
-  background-color: #35495e;
+.object-cover {
+  object-fit: cover;
+}
+</style>
+
+<style lang="scss">
+@import '~assets/scss/mixins';
+
+.container {
+  @apply px-8;
+  @include mq(ns) {
+    @apply px-16;
+  }
+  @extend %mwc;
+}
+
+section {
+  h2 {
+    & ~ & {
+      @apply text-orange;
+    }
+    @apply mt-12;
+  }
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    & + & {
+      @apply text-blue;
+    }
+  }
+  p {
+    &:last-child {
+      @apply mb-12;
+    }
+  }
 }
 </style>
