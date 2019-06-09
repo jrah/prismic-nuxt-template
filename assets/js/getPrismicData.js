@@ -12,7 +12,7 @@ export const PrismicMixin = {
       title:
         this.document.data.meta_title ||
         this.document.data.body.header_title ||
-        'Bright World',
+        'Britcent',
       link: [
         {
           rel: 'canonical',
