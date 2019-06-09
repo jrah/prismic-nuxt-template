@@ -1,3 +1,5 @@
+const Prismic = require('prismic-javascript')
+
 export default {
   mode: 'universal',
   /*
@@ -31,14 +33,52 @@ export default {
   /*
    ** Nuxt.js modules
    */
-  modules: ['@nuxtjs/eslint-module'],
+  modules: [
+    '@nuxtjs/eslint-module',
+    [
+      'prismic-nuxt',
+      {
+        endpoint: 'https://britcent.cdn.prismic.io/api/v2',
+        // deferLoad: true,
+        linkResolver: function(doc, ctx) {
+          return '/'
+        }
+      }
+    ]
+  ],
+  generate: {
+    // fallback: true,
+    routes: async function() {
+      const apiEndpoint = 'https://britcent.cdn.prismic.io/api/v2'
+      const routes = []
+      await Prismic.getApi(apiEndpoint)
+        .then(function(api) {
+          return api.query('', { pageSize: 100 }) // An empty query will return all the documents
+        })
+        .then(response => {
+          // response is the response object, response.results holds the documents
+          response.results.map(item => {
+            let url = ''
+            if (item.type == 'page') {
+              url = `/${item.uid}`
+            } else if (item.type != 'home') {
+              url = `/${item.type.replace('_', '/')}/${item.uid}`
+            } else {
+              url = '/'
+            }
+            routes.push(url)
+          })
+        })
+      return routes
+    }
+  },
   /*
    ** Build configuration
    */
   build: {
     postcss: {
       plugins: {
-        tailwindcss: './tailwind.config.js'
+        tailwindcss: './tailwind.js'
       }
     },
     /*
